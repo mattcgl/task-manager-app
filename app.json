@@ -7,8 +7,16 @@
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "platforms": ["ios", "android"],
-    "plugins": ["expo-router", "expo-sqlite"],
-    "ios": { "supportsTablet": false },
-    "experiments": { "typedRoutes": true }
+    "plugins": [
+      "expo-router",
+      "expo-sqlite",
+      "@react-native-community/datetimepicker"
+    ],
+    "ios": {
+      "supportsTablet": false
+    },
+    "experiments": {
+      "typedRoutes": true
+    }
   }
 }

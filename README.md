@@ -2,7 +2,7 @@
 
 An iPhone-first personal planner built with Expo, React Native, TypeScript, and SQLite. The goal is to connect daily tasks to personal goals and thoughtful weekly reviews, with local storage and no required backend.
 
-**Status: foundation preview.** Navigation and a persistent intention note are implemented. Tasks, goals, and reviews are clearly labeled planned screens, not completed features. iPhone acceptance testing is pending. Android is not yet verified.
+**Status: task milestone preview.** The user verified the M1 intention save/reload flow on iPhone. M2 adds task creation/editing, completion/reopening, archive/restore, priorities, native date pickers, and Today/Inbox/Completed/Archived views. M2 iPhone acceptance is pending. Goals and reviews remain planned screens. Android is not yet verified.
 
 ## Run on your iPhone
 
@@ -11,7 +11,18 @@ An iPhone-first personal planner built with Expo, React Native, TypeScript, and 
 3. Connect your Windows computer and iPhone to the same Wi-Fi network.
 4. Run `npm start` and leave the terminal running.
 5. Scan the displayed QR code with the iPhone Camera and open it in Expo Go. Allow local-network access when prompted.
-6. Enter an intention on Today, tap **Save intention**, and reload through Expo Go. The text should remain.
+6. Add a task on Today, then find it in Tasks. Complete it, find it under Completed, and reopen it. Reload and confirm it remains saved. Your previous intention is preserved below the task list on Today.
+
+After updating dependencies, stop Metro and run `npm start -- --clear` before reopening the project. Never delete app storage to apply a schema update; migrations preserve existing data.
+
+## Plan a task
+
+- Quick-add on **Today** plans a task for today; quick-add on **Tasks** places it in the inbox without a planned date.
+- **Add with details** and **Edit** let you set notes, priority, planned date, and due date. Planned date means when you intend to work; due date means the deadline. Both are optional.
+- Today includes unfinished work planned for today plus overdue tasks, without duplicates. A deadline today is not overdue until the next calendar day.
+- Complete a task using its checkbox. Reopen it from **Tasks → Completed**.
+- Archive removes work from active lists; **Tasks → Archived → Restore** brings it back.
+- Moving a planned task to another week retains the original commitment for future reviews. Clearing its planned date withdraws its current weekly commitment. Nothing is automatically carried forward.
 
 If connection fails, check the same-network requirement, Windows firewall permission for Node on your private network, and iPhone local-network permission. Do not disable your firewall. If Expo Go reports an SDK mismatch, record its version so we can select a compatible SDK deliberately.
 
@@ -36,9 +47,11 @@ npm run check
 - `src/components/` contains reusable views. Props are the inputs a component receives; state tracks values that change while it is displayed.
 - `src/theme/` holds shared colors so screens stay consistent.
 - `src/data/` owns SQLite queries and versioned schema initialization. React state holds the current input; SQLite keeps the saved value across reloads.
-- `tests/` checks migration control flow and real SQLite persistence/rollback using Node's built-in SQLite. Physical-device persistence is a separate acceptance check.
+- `src/features/tasks/` contains the form and lists plus a shared React context. That context gives Today and Tasks one current task list, so a completion in either tab updates both.
+- `src/domain/` contains validation, calendar-date arithmetic, and list-selection rules independent of screens or SQLite.
+- `tests/` checks real SQLite migrations and rollback, task history/commitments, calendar rules in America/Denver, and form interactions. Physical-device persistence is a separate acceptance check.
 
-Storage starts with a single settings table. Task and goal schemas will be added through migrations in their milestones, keeping the foundation small. Domain logic and persistence remain separate so a future backend does not require rewriting every screen.
+Schema version 2 adds tasks, task events, and weekly commitments to the original settings table. A task mutation and its history are saved in one exclusive transaction: either all changes succeed or none are saved. Events have stable sequence numbers to order changes that happen in the same millisecond. Goal schemas will follow in M3. Domain logic and persistence remain separate so a future backend does not require rewriting every screen.
 
 ## Roadmap and working agreement
 

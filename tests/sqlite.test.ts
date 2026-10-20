@@ -6,6 +6,8 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
   migrateDatabase,
+  SCHEMA_VERSION,
+  INITIAL_SCHEMA,
   type MigrationDatabase,
 } from '../src/data/migrations';
 
@@ -35,7 +37,9 @@ test('real SQLite migration preserves saved data across reopening and rerunning'
   const path = join(directory, 'test.db');
   let db = new DatabaseSync(path);
   try {
-    await migrateDatabase(adapter(db));
+    // Start from the shipped M1 schema to verify a real user upgrade.
+    db.exec(INITIAL_SCHEMA);
+    db.exec('PRAGMA user_version = 1;');
     db.prepare('UPDATE settings SET value = ? WHERE key = ?').run(
       "Read a chapter's notes",
       'foundation_note',
@@ -48,7 +52,9 @@ test('real SQLite migration preserves saved data across reopening and rerunning'
         .prepare('SELECT value FROM settings WHERE key = ?')
         .get('foundation_note')?.value,
     ).toBe("Read a chapter's notes");
-    expect(db.prepare('PRAGMA user_version').get()?.user_version).toBe(1);
+    expect(db.prepare('PRAGMA user_version').get()?.user_version).toBe(
+      SCHEMA_VERSION,
+    );
     expect(db.prepare('PRAGMA foreign_keys').get()?.foreign_keys).toBe(1);
   } finally {
     db.close();

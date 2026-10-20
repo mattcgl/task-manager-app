@@ -1,11 +1,13 @@
-import { ComingNext } from '../../src/components/ComingNext';
+import { Screen } from '../../src/components/Screen';
+import { TaskWorkspace } from '../../src/features/tasks/TaskWorkspace';
 export default function TasksScreen() {
   return (
-    <ComingNext
-      title="Small steps. Real progress."
-      description="A home for the things you want to get done."
-      milestone="Milestone 02"
-      detail="Add tasks, choose when to work on them, and check them off. Due dates and planned dates will stay separate."
-    />
+    <Screen
+      eyebrow="One step at a time"
+      title="Your tasks"
+      description="Capture it, give it a little space, and move it forward."
+    >
+      <TaskWorkspace mode="all" />
+    </Screen>
   );
 }

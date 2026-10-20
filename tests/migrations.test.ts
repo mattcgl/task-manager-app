@@ -1,6 +1,7 @@
 import { jest, test, expect } from '@jest/globals';
 import {
   migrateDatabase,
+  SCHEMA_VERSION,
   type MigrationDatabase,
 } from '../src/data/migrations';
 
@@ -19,17 +20,19 @@ test('initial schema and version update run in one transaction', async () => {
   const db = database(0);
   await migrateDatabase(db as MigrationDatabase);
   expect(db.withTransactionAsync).toHaveBeenCalledTimes(1);
-  expect(db.execAsync).toHaveBeenLastCalledWith('PRAGMA user_version = 1;');
+  expect(db.execAsync).toHaveBeenLastCalledWith(
+    `PRAGMA user_version = ${SCHEMA_VERSION};`,
+  );
 });
 
 test('already migrated database is not recreated', async () => {
-  const db = database(1);
+  const db = database(SCHEMA_VERSION);
   await migrateDatabase(db as MigrationDatabase);
   expect(db.withTransactionAsync).not.toHaveBeenCalled();
 });
 
 test('future schema is refused without migration writes', async () => {
-  const db = database(2);
+  const db = database(SCHEMA_VERSION + 1);
   await expect(migrateDatabase(db as MigrationDatabase)).rejects.toThrow(
     'newer app',
   );
@@ -44,5 +47,7 @@ test('schema failure does not advance the version', async () => {
   await expect(migrateDatabase(db as MigrationDatabase)).rejects.toThrow(
     'disk full',
   );
-  expect(db.execAsync).not.toHaveBeenCalledWith('PRAGMA user_version = 1;');
+  expect(db.execAsync).not.toHaveBeenCalledWith(
+    `PRAGMA user_version = ${SCHEMA_VERSION};`,
+  );
 });

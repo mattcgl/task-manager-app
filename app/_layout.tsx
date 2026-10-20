@@ -6,6 +6,7 @@ import { SQLiteProvider } from 'expo-sqlite';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { migrateDatabase } from '../src/data/migrations';
 import { Screen, styles } from '../src/components/Screen';
+import { TaskProvider } from '../src/features/tasks/TaskProvider';
 
 class DatabaseBoundary extends Component<
   PropsWithChildren,
@@ -43,7 +44,9 @@ export default function RootLayout() {
       <StatusBar style="dark" />
       <DatabaseBoundary>
         <SQLiteProvider databaseName="task-goal.db" onInit={migrateDatabase}>
-          <Stack screenOptions={{ headerShown: false }} />
+          <TaskProvider>
+            <Stack screenOptions={{ headerShown: false }} />
+          </TaskProvider>
         </SQLiteProvider>
       </DatabaseBoundary>
     </SafeAreaProvider>

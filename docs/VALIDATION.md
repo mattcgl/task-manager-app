@@ -1,4 +1,6 @@
-# Foundation validation — 2026-10-20
+# Project validation — 2026-10-20
+
+Current status: M1 accepted by the user on iPhone. M2 implementation verification and device checklist are recorded at the end. Earlier pending statements below are historical checkpoints.
 
 ## Completed on Windows
 
@@ -46,3 +48,23 @@ Post-correction verification passed: Expo dependency compatibility, TypeScript, 
 ## M1 iPhone acceptance — user reported
 
 The user confirmed successful app launch, intention entry/save, persistence after reload, and no errors. Core M1 acceptance passed. This is user-performed testing, not agent-operated device testing. Accessibility, Android, and standalone offline launch remain unverified.
+
+## M2 task milestone
+
+Automated coverage includes schema-1 upgrade without losing the intention, task creation/editing, completion/reopening idempotence, archive/restore, historical weekly commitments after rescheduling, explicit withdrawal, validation without writes, atomic rollback on simulated history failure, Today deduplication, date-only rules across DST/year/leap-day boundaries, and form submission/error retention. Native date-picker rendering is mocked in component tests and still requires physical-device testing.
+
+The dependency installation reports 66 affected dependency entries (16 moderate, 50 high). Previous counts are historical. No forced Expo-incompatible fixes were applied.
+
+### Pending M2 iPhone checklist
+
+1. Stop the old Metro server, run `npm start -- --clear`, and reopen with the new QR code.
+2. Confirm your saved intention is still present below the Today task list.
+3. Quick-add a task on Today. Switch to Tasks and confirm it appears there too.
+4. Edit it: change its title, add notes, set High priority, and try the planned/due date pickers. Save and reopen the editor to confirm those values.
+5. Complete it. Confirm it leaves Today and appears in Tasks → Completed; reopen it and confirm it returns to Today if still planned for today.
+6. Archive it, then restore it from Archived. Reload and confirm its data persists.
+7. Optional edge checks: create an unplanned task in Inbox, set a deadline yesterday to make it overdue, and set both overdue + planned today to confirm it only appears once. Try a blank title and check that it is rejected without losing other form input.
+
+Device result: pending. No agent claim of iPhone or Android execution for M2.
+
+M2 desktop result: all 24 tests across five suites passed; typecheck, lint (no warnings), formatting, Expo compatibility, and iOS Hermes export passed. Native iPhone task flow still pending. Jest initially encountered sandbox cache-write restrictions; approved execution outside the sandbox succeeded.

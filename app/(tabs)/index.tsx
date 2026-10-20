@@ -13,6 +13,7 @@ import {
   saveFoundationNote,
 } from '../../src/data/settings';
 import { theme } from '../../src/theme';
+import { TaskWorkspace } from '../../src/features/tasks/TaskWorkspace';
 
 export default function TodayScreen() {
   const db = useSQLiteContext();
@@ -64,15 +65,15 @@ export default function TodayScreen() {
   return (
     <Screen
       eyebrow="A little progress, every day"
-      title="Make room for what matters."
-      description="Your goals, daily work, and weekly reflections — together in one quiet place."
+      title="Make today count."
+      description="A little intention. A few meaningful steps."
     >
+      <TaskWorkspace mode="today" />
       <View style={styles.card}>
-        <Text style={styles.badge}>FOUNDATION PREVIEW · 01</Text>
+        <Text style={styles.badge}>YOUR INTENTION</Text>
         <Text style={styles.heading}>Start with one intention.</Text>
         <Text style={styles.body}>
-          What would make today feel worthwhile? Save a note, then reload the
-          app to check that it stays.
+          What would make today feel worthwhile? Keep a reminder for yourself.
         </Text>
         {loading ? (
           <ActivityIndicator
@@ -122,10 +123,6 @@ export default function TodayScreen() {
           </Text>
         )}
       </View>
-      <Text style={styles.body}>
-        This first preview checks navigation and local storage. Task planning,
-        goals, and weekly reviews are the next milestones.
-      </Text>
     </Screen>
   );
 }

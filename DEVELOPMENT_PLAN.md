@@ -1,7 +1,7 @@
 # Personal Goals and Tasks — Development Plan
 
 Last updated: 2026-10-20
-Status: M1 accepted on iPhone; M2 in progress.
+Status: M1 accepted on iPhone; M2 implementation verified, device acceptance pending.
 Current milestone: M2 — Tasks and Today.
 
 ## 1. Purpose and working agreement
@@ -246,3 +246,14 @@ SDK 57 correction implemented: React 19.2.3 / React Native 0.86.3; Jest and nati
 M1 acceptance: user confirmed the app opens, an intention saves, the same intention remains after reload, and no errors were found on their iPhone. This satisfies the foundation persistence acceptance. Detailed accessibility testing remains part of M5. M2 is authorized by the original development request.
 
 M2 implementation decisions: retain the intention note, add schema version 2 through an additive migration, use shared task state for Today/Tasks, serialize task writes with exclusive SQLite transactions, and persist events/weekly commitments atomically. Goal selection/filtering waits for M3, when goals exist. Archive is reversible. Date-only planned/due values use validated calendar dates; weeks start Monday. Removing a planned date withdraws the task's current weekly commitment; moving dates retains past commitments for review. No automatic carryover or recurring tasks.
+
+M2 implementation checkpoint:
+
+- Implemented create/edit, complete/reopen, archive/restore, priority, optional notes and native date pickers; added Open/Inbox/Completed/Archived filters and Today quick-add with deduplicated overdue work.
+- Shared React state refreshes both task screens after writes. In-flight mutations are guarded against double submission. Load failures provide retry; failed edits retain input.
+- Added task events with stable sequence numbers and snapshot data, plus weekly commitments. M1 settings survive the additive version-2 migration.
+- Added repository integration tests for lifecycle, rescheduling, commitment withdrawal, and transaction rollback; domain tests for filtering, invalid dates, and DST; component tests for form submission and failures.
+- Goal association and filtering remain M3 work. No reminders, automation, accounts, or paid services were added.
+- Next action: finish checks, commit/push M2 implementation, and ask the user to verify the task flow and original intention on iPhone before M3.
+
+M2 verification passed: TypeScript, ESLint, Prettier, 24 tests across five suites, Expo SDK compatibility, and iOS Hermes export. M2 user device checklist remains pending; next milestone is M3 after that check.
