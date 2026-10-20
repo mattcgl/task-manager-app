@@ -42,3 +42,7 @@ After dependency alignment, npm reports 65 affected dependency entries (16 moder
 Retry with npm start -- --clear and scan the new QR code. No app data needs to be deleted.
 
 Post-correction verification passed: Expo dependency compatibility, TypeScript, ESLint, Prettier, all six tests, and iOS Hermes export.
+
+## M1 iPhone acceptance — user reported
+
+The user confirmed successful app launch, intention entry/save, persistence after reload, and no errors. Core M1 acceptance passed. This is user-performed testing, not agent-operated device testing. Accessibility, Android, and standalone offline launch remain unverified.

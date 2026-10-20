@@ -1,8 +1,8 @@
 # Personal Goals and Tasks — Development Plan
 
 Last updated: 2026-10-20
-Status: M1 implementation ready; physical iPhone acceptance pending.
-Current milestone: M1 — foundation and first iPhone preview.
+Status: M1 accepted on iPhone; M2 in progress.
+Current milestone: M2 — Tasks and Today.
 
 ## 1. Purpose and working agreement
 
@@ -128,7 +128,7 @@ Task changes and their history/commitment records must be atomic. Archive goals 
 - Capture agreed direction, constraints, architecture, scope, milestones, and working rules.
 - No app scaffolding, purchases, or deployment in this milestone.
 
-### M1 — Foundation and first iPhone preview
+### M1 — Foundation and first iPhone preview (complete)
 
 - Initialize Expo/TypeScript, navigation, theme, database migration infrastructure, and checks.
 - Establish README setup instructions and ignore generated files, secrets, and personal backups.
@@ -242,3 +242,7 @@ Next action: complete the M1 iPhone preview checklist in docs/VALIDATION.md, the
 Compatibility correction: the user's iPhone runs iOS 26.5.2 and App Store offers no Expo Go update. The current App Store listing is Expo Go 57.0.9 (React Native 0.86), while the project uses SDK 58. Align M1 to SDK 57 and its bundled dependency versions, rerun checks, and commit the correction. Physical-device acceptance remains pending. Source: https://apps.apple.com/us/app/expo-go/id982107779
 
 SDK 57 correction implemented: React 19.2.3 / React Native 0.86.3; Jest and native animation peers aligned. README now targets SDK 57. M1 remains pending a successful iPhone retry; use npm start -- --clear. Updated dependency advisories are recorded in docs/VALIDATION.md.
+
+M1 acceptance: user confirmed the app opens, an intention saves, the same intention remains after reload, and no errors were found on their iPhone. This satisfies the foundation persistence acceptance. Detailed accessibility testing remains part of M5. M2 is authorized by the original development request.
+
+M2 implementation decisions: retain the intention note, add schema version 2 through an additive migration, use shared task state for Today/Tasks, serialize task writes with exclusive SQLite transactions, and persist events/weekly commitments atomically. Goal selection/filtering waits for M3, when goals exist. Archive is reversible. Date-only planned/due values use validated calendar dates; weeks start Monday. Removing a planned date withdraws the task's current weekly commitment; moving dates retains past commitments for review. No automatic carryover or recurring tasks.
