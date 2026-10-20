@@ -1,7 +1,7 @@
 # Personal Goals and Tasks — Development Plan
 
 Last updated: 2026-10-20
-Status: Development authorized; M1 in progress.
+Status: M1 implementation ready; physical iPhone acceptance pending.
 Current milestone: M1 — foundation and first iPhone preview.
 
 ## 1. Purpose and working agreement
@@ -64,20 +64,20 @@ Notifications and reminders; recurring tasks; subtasks; workflow automation; ded
 
 ## 5. Stack and tools
 
-| Concern | Decision | Reason |
-| --- | --- | --- |
-| App | React Native with Expo | Shared mobile code and accessible iPhone testing |
-| Language | TypeScript with strict checking | Clear data contracts and early error detection |
-| Navigation | Expo Router | Conventional screen/navigation structure |
-| Persistence | expo-sqlite | Local relational storage and offline operation |
-| UI | React Native components and a small shared theme | Avoid a large UI framework while learning |
-| State | React state/context where needed | Keep complexity proportional to the app |
-| Logic tests | Jest with Expo-compatible configuration | Exercise date, review, and persistence behavior |
-| UI tests | React Native Testing Library | Verify meaningful user interactions |
-| Checks | TypeScript, ESLint, formatting, GitHub Actions | Repeatable quality checks |
-| Device preview | Expo Go on user's iPhone | Free initial iteration from Windows |
-| Standalone builds | EAS when ready | iOS cloud builds without owning a Mac |
-| Future backend | Reevaluate Supabase when sync is needed | Candidate for PostgreSQL and authentication |
+| Concern           | Decision                                         | Reason                                           |
+| ----------------- | ------------------------------------------------ | ------------------------------------------------ |
+| App               | React Native with Expo                           | Shared mobile code and accessible iPhone testing |
+| Language          | TypeScript with strict checking                  | Clear data contracts and early error detection   |
+| Navigation        | Expo Router                                      | Conventional screen/navigation structure         |
+| Persistence       | expo-sqlite                                      | Local relational storage and offline operation   |
+| UI                | React Native components and a small shared theme | Avoid a large UI framework while learning        |
+| State             | React state/context where needed                 | Keep complexity proportional to the app          |
+| Logic tests       | Jest with Expo-compatible configuration          | Exercise date, review, and persistence behavior  |
+| UI tests          | React Native Testing Library                     | Verify meaningful user interactions              |
+| Checks            | TypeScript, ESLint, formatting, GitHub Actions   | Repeatable quality checks                        |
+| Device preview    | Expo Go on user's iPhone                         | Free initial iteration from Windows              |
+| Standalone builds | EAS when ready                                   | iOS cloud builds without owning a Mac            |
+| Future backend    | Reevaluate Supabase when sync is needed          | Candidate for PostgreSQL and authentication      |
 
 Choose the stable Expo SDK compatible with the current iPhone Expo Go app at setup time. Use Expo-compatible package versions, commit a lockfile, and document the Node version. Do not freeze versions based on this planning document's date. Use npm unless repository requirements change.
 
@@ -107,15 +107,15 @@ Use stable generated IDs and created/updated timestamps. These support later mig
 
 ## 7. Initial data model
 
-| Entity | Key contents |
-| --- | --- |
-| Goal | ID, title, description, target date, status, timestamps |
-| Task | ID, optional goal ID, title, notes, due date, planned date, priority, status, completion timestamp, archive timestamp, timestamps |
-| Task event | ID, task ID, event type, UTC occurrence time, local date and time-zone context; enough history to reconstruct completion/reopening/archive state |
-| Weekly commitment | ID, task ID, week-start local date, creation time, withdrawn status/time; unique task/week |
-| Weekly review | ID, unique week-start date, time zone, cutoff, draft/finalized status, versioned snapshot, reflection fields, next-week priorities, timestamps |
-| Settings | Schema-backed preferences as required |
-| Migration metadata | Applied database schema versions |
+| Entity             | Key contents                                                                                                                                     |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Goal               | ID, title, description, target date, status, timestamps                                                                                          |
+| Task               | ID, optional goal ID, title, notes, due date, planned date, priority, status, completion timestamp, archive timestamp, timestamps                |
+| Task event         | ID, task ID, event type, UTC occurrence time, local date and time-zone context; enough history to reconstruct completion/reopening/archive state |
+| Weekly commitment  | ID, task ID, week-start local date, creation time, withdrawn status/time; unique task/week                                                       |
+| Weekly review      | ID, unique week-start date, time zone, cutoff, draft/finalized status, versioned snapshot, reflection fields, next-week priorities, timestamps   |
+| Settings           | Schema-backed preferences as required                                                                                                            |
+| Migration metadata | Applied database schema versions                                                                                                                 |
 
 Store instants as UTC timestamps and date-only values as YYYY-MM-DD strings. Do not convert date-only deadlines through UTC in a way that shifts their calendar date. Compute week boundaries in local calendar time rather than assuming every day lasts 24 hours. Preserve saved review time-zone context. Define and test behavior for travel/time-zone changes before shipping reviews.
 
@@ -203,16 +203,16 @@ Reference sources checked during planning:
 
 ## 11. Risks and responses
 
-| Risk | Response |
-| --- | --- |
-| Too many new technologies | Small vertical features, explanatory changes, minimal dependencies |
-| Scope expansion delays useful app | Finish core milestones before deferred features |
-| Local data loss | Versioned backups, transactional restore, documented limitations |
-| Misleading weekly metrics | Explicit commitments, event history, immutable finalized snapshots |
-| iPhone distribution cost | Free prototype first; separate signing decision before personal release |
-| Expo Go version compatibility | Verify supported SDK at setup and manage upgrades deliberately |
-| Untested Android behavior | Preserve portability and label validation status accurately |
-| Future sync complexity | Separate storage from domain/UI; scope sync as its own future project |
+| Risk                              | Response                                                                |
+| --------------------------------- | ----------------------------------------------------------------------- |
+| Too many new technologies         | Small vertical features, explanatory changes, minimal dependencies      |
+| Scope expansion delays useful app | Finish core milestones before deferred features                         |
+| Local data loss                   | Versioned backups, transactional restore, documented limitations        |
+| Misleading weekly metrics         | Explicit commitments, event history, immutable finalized snapshots      |
+| iPhone distribution cost          | Free prototype first; separate signing decision before personal release |
+| Expo Go version compatibility     | Verify supported SDK at setup and manage upgrades deliberately          |
+| Untested Android behavior         | Preserve portability and label validation status accurately             |
+| Future sync complexity            | Separate storage from domain/UI; scope sync as its own future project   |
 
 ## 12. Decision log and next action
 
@@ -226,5 +226,15 @@ Open items that do not block initial development: app name/visual preference, Gi
 
 2026-10-20: User authorized development, GitHub repository creation, and commits after milestone implementation. Create a public portfolio repository named task-manager-app under the authenticated personal account. Commit verified implementation checkpoints while clearly identifying outstanding physical-device acceptance checks.
 
-Next action: implement M1 and provide iPhone preview instructions.
+2026-10-20 M1 checkpoint:
 
+- Created public repository: https://github.com/mattcgl/task-manager-app and pushed the planning baseline.
+- Implemented Expo SDK 58 / React Native 0.88 / TypeScript foundation, four-tab navigation, shared theme, SQLite migration infrastructure, and a saved intention note as the M1 persistence probe.
+- Task, goal, and review tabs are clearly labeled placeholders; M2–M4 are not implemented.
+- Added npm lockfile, setup/learning README, GitHub Actions checks, migration unit tests, and real Node SQLite integration tests.
+- Verification: typecheck, lint, formatting, and six tests passed. iOS Hermes bundle export succeeded outside the sandbox after sandbox temporary-file permissions blocked the first attempt.
+- Expo compatibility check passed. npm audit still reports 54 dependency advisories (26 moderate, 28 high) after compatible fixes. Documented in docs/VALIDATION.md; do not force incompatible Expo downgrades.
+- Pending: user opens the preview in compatible Expo Go, verifies tab layout, keyboard behavior, and saved note across reload. Native SQLite behavior and physical-device appearance remain unverified.
+- Working title: Task & Goal. No paid service or standalone distribution was configured.
+
+Next action: complete the M1 iPhone preview checklist in docs/VALIDATION.md, then proceed to M2 task implementation. Commit the tested M1 implementation checkpoint with the device acceptance gap explicit.

@@ -1,0 +1,14 @@
+{
+  "expo": {
+    "name": "Task & Goal",
+    "slug": "task-manager-app",
+    "version": "0.1.0",
+    "scheme": "taskgoal",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "platforms": ["ios", "android"],
+    "plugins": ["expo-router", "expo-sqlite"],
+    "ios": { "supportsTablet": false },
+    "experiments": { "typedRoutes": true }
+  }
+}

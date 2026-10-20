@@ -1,0 +1,7 @@
+node_modules
+.expo
+.scaffold
+dist
+coverage
+package-lock.json
+

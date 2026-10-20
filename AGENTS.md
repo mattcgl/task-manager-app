@@ -11,4 +11,3 @@ Before every project action, read `DEVELOPMENT_PLAN.md` and confirm that the act
 - Do not claim iPhone/Android device testing without evidence. Record checks that require the user's physical device.
 - Never commit personal app data, exported backups, credentials, or signing material. Use synthetic data for portfolio artifacts.
 - Keep this file concise; detailed requirements belong in `DEVELOPMENT_PLAN.md`.
-
