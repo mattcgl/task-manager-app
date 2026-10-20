@@ -7,7 +7,7 @@ An iPhone-first personal planner built with Expo, React Native, TypeScript, and 
 ## Run on your iPhone
 
 1. Install Node.js 24 (developed with 24.13.1) and run `npm ci` in this folder.
-2. Install Expo Go from the App Store. This project uses Expo SDK 58; Expo Go must support that SDK.
+2. Install Expo Go from the App Store. This project uses Expo SDK 57; Expo Go must support that SDK.
 3. Connect your Windows computer and iPhone to the same Wi-Fi network.
 4. Run `npm start` and leave the terminal running.
 5. Scan the displayed QR code with the iPhone Camera and open it in Expo Go. Allow local-network access when prompted.

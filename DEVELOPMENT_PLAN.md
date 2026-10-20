@@ -238,3 +238,7 @@ Open items that do not block initial development: app name/visual preference, Gi
 - Working title: Task & Goal. No paid service or standalone distribution was configured.
 
 Next action: complete the M1 iPhone preview checklist in docs/VALIDATION.md, then proceed to M2 task implementation. Commit the tested M1 implementation checkpoint with the device acceptance gap explicit.
+
+Compatibility correction: the user's iPhone runs iOS 26.5.2 and App Store offers no Expo Go update. The current App Store listing is Expo Go 57.0.9 (React Native 0.86), while the project uses SDK 58. Align M1 to SDK 57 and its bundled dependency versions, rerun checks, and commit the correction. Physical-device acceptance remains pending. Source: https://apps.apple.com/us/app/expo-go/id982107779
+
+SDK 57 correction implemented: React 19.2.3 / React Native 0.86.3; Jest and native animation peers aligned. README now targets SDK 57. M1 remains pending a successful iPhone retry; use npm start -- --clear. Updated dependency advisories are recorded in docs/VALIDATION.md.

@@ -32,3 +32,13 @@ Using the instructions in README.md:
 8. Report errors or layout problems before marking M1 accepted.
 
 The SQLite integration tests run against Node SQLite, not expo-sqlite on iOS. No physical iPhone or Android testing has been performed by the agent. Standalone airplane-mode cold launch belongs to M6, not this Expo Go checkpoint.
+
+## SDK 57 compatibility correction
+
+The iPhone reported that SDK 58 required a newer Expo Go, but App Store offered no update. App Store currently lists Expo Go 57.0.9. The project was aligned with SDK 57's official bundled module map, React 19.2.3, React Native 0.86.3, and Jest 29. Animation peer dependencies were explicitly pinned to avoid retaining SDK 58 versions. The iOS version reported by the user is 26.5.2. Physical-device launch remains pending.
+
+After dependency alignment, npm reports 65 affected dependency entries (16 moderate, 49 high). The earlier SDK 58 audit counts above are historical; no forced compatibility-breaking fixes were applied.
+
+Retry with npm start -- --clear and scan the new QR code. No app data needs to be deleted.
+
+Post-correction verification passed: Expo dependency compatibility, TypeScript, ESLint, Prettier, all six tests, and iOS Hermes export.
