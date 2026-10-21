@@ -36,6 +36,9 @@ beforeEach(() => {
     tasks: [],
     goals: [],
     executeGoal: async () => {},
+    saveWeeklyReview: async () => {
+      throw new Error('Not used in this test');
+    },
     loading: false,
     busy: false,
     error: '',

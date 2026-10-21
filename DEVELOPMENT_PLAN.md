@@ -1,8 +1,8 @@
 # Personal Goals and Tasks — Development Plan
 
 Last updated: 2026-10-20
-Status: M1 accepted; M2/M3 implementation verified, physical-device acceptance pending.
-Current milestone: M3 — Goals (M2 device acceptance still pending).
+Status: Core M2/M3 goal/task flow verified by user; M4 implementation verified, iPhone acceptance pending.
+Current milestone: M4 — Weekly reviews checkpoint; await device feedback and the user's UI/quality-of-life list.
 
 ## 1. Purpose and working agreement
 
@@ -270,3 +270,15 @@ M3 implementation checkpoint:
 - M2 and M3 iPhone checks remain pending. Next milestone is M4 weekly reviews; record device feedback before relying on these features for personal data.
 
 M3 iOS Hermes export passed. Commit the tested implementation checkpoint; collect M2/M3 device feedback before marking either accepted.
+
+User confirmed goal creation, task linking, task completion, progress updates, and persistence after reload on iPhone. Record those specific checks as passed; broader archive/accessibility checks are not implied. User authorized M4 next and requested UI/quality-of-life polish afterwards, with a list to follow. Stop after the M4 checkpoint for that list rather than starting M5 polish or adding unrequested features.
+
+M4 rules: review weeks run Monday–Sunday in an explicit IANA time zone. New reviews use the device zone; saved drafts and finalized reviews retain their original zone when traveling. Compute boundaries with Intl calendar dates, not fixed 24-hour durations. Reconstruct task/commitment state from event snapshots at the cutoff; completed-this-week tasks still completed at cutoff are counted once, including unplanned work. Reopened commitments remain unfinished; archived/withdrawn commitments appear separately; commitments completed before the week are labeled already complete. Finalized snapshots cannot be refreshed or replaced; only reflection/priorities text can be edited. Allow finalizing the current partial week with an explicit warning. Next-week task planning is opt-in, preserving original commitments and prompting before moving an existing planned date. Past reviews whose following week has elapsed cannot reschedule tasks into the past.
+
+M4 implementation checkpoint:
+
+- Added week selection, accomplishment/unfinished/set-aside summaries, five reflection fields, saved drafts, finalized snapshots, and opt-in following-week planning.
+- Schema version 4 adds unique weekly reviews and a database trigger protecting finalized history. Revision checks prevent stale saves; task planning preserves current details and historical commitments.
+- TypeScript, ESLint, formatting, and all 50 tests across seven suites passed. Coverage includes real SQLite close/reopen persistence, failed writes, frozen history, DST, time-zone retention, and form interactions. A reload object-shape mismatch found by tests was corrected.
+- iOS Hermes export passed; native iPhone review acceptance remains pending. See docs/VALIDATION.md for the checklist. No dependencies, backend, paid services, reminders, or automation were added.
+- Next action: commit/push the verified M4 checkpoint, collect the user's end-to-end iPhone feedback, then discuss their forthcoming UI/quality-of-life list. Do not start M5 or unsolicited polish before that list.

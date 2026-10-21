@@ -1,6 +1,6 @@
 import type { Task, TaskInput } from '../domain/tasks';
 import { validateTask } from '../domain/tasks';
-import { localDate, weekStart } from '../domain/dates';
+import { localDate, weekStart, parseDate } from '../domain/dates';
 import type { Goal } from '../domain/goals';
 
 type Value = string | number | null;
@@ -16,6 +16,7 @@ export interface TaskDatabase extends TaskQueries {
 }
 
 export type TaskCommand =
+  | { kind: 'plan'; id: string; plannedDate: string }
   | { kind: 'create'; input: TaskInput }
   | { kind: 'edit'; id: string; input: TaskInput }
   | { kind: 'complete' | 'reopen' | 'archive' | 'restore'; id: string };
@@ -35,6 +36,7 @@ export async function applyTaskCommand(
 ): Promise<void> {
   const stamp = now.toISOString();
   const input = 'input' in command ? validateTask(command.input) : undefined;
+  if (command.kind === 'plan') parseDate(command.plannedDate);
   await db.withExclusiveTransactionAsync(async (tx) => {
     const previous =
       'id' in command
@@ -59,6 +61,11 @@ export async function applyTaskCommand(
           updatedAt: stamp,
         };
     if (command.kind === 'edit') Object.assign(task, input);
+    if (command.kind === 'plan') {
+      if (task.status !== 'open')
+        throw new Error('Only unfinished tasks can be planned.');
+      task.plannedDate = command.plannedDate;
+    }
     task.goalId = task.goalId ?? null;
     if (task.goalId) {
       const goal = await tx.getFirstAsync<Goal>(
@@ -123,6 +130,7 @@ export async function applyTaskCommand(
     if (
       task.plannedDate &&
       (command.kind === 'create' ||
+        command.kind === 'plan' ||
         command.kind === 'edit' ||
         command.kind === 'restore')
     ) {

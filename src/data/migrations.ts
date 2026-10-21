@@ -5,7 +5,7 @@ export interface MigrationDatabase {
   withTransactionAsync(work: () => Promise<void>): Promise<void>;
 }
 
-export const SCHEMA_VERSION = 3;
+export const SCHEMA_VERSION = 4;
 
 export const INITIAL_SCHEMA = `
 CREATE TABLE IF NOT EXISTS settings (
@@ -81,6 +81,19 @@ export async function migrateDatabase(db: MigrationDatabase): Promise<void> {
       );
       ALTER TABLE tasks ADD COLUMN goalId TEXT REFERENCES goals(id);
       CREATE INDEX tasks_goal ON tasks(goalId);
+    `);
+    if (version < 4)
+      await db.execAsync(`
+      CREATE TABLE weekly_reviews (
+        id TEXT PRIMARY KEY NOT NULL, weekStart TEXT UNIQUE NOT NULL, timeZone TEXT NOT NULL,
+        status TEXT NOT NULL CHECK(status IN ('draft', 'finalized')), snapshot TEXT NOT NULL,
+        reflection TEXT NOT NULL, revision INTEGER NOT NULL, createdAt TEXT NOT NULL, updatedAt TEXT NOT NULL
+      );
+      CREATE INDEX task_events_review_cutoff ON task_events(occurredAt, sequence);
+      CREATE TRIGGER protect_final_review BEFORE UPDATE ON weekly_reviews
+      WHEN OLD.status = 'finalized' AND (NEW.snapshot != OLD.snapshot OR NEW.status != OLD.status
+        OR NEW.weekStart != OLD.weekStart OR NEW.timeZone != OLD.timeZone OR NEW.id != OLD.id)
+      BEGIN SELECT RAISE(ABORT, 'Finalized review history cannot be changed'); END;
     `);
     await db.execAsync(`PRAGMA user_version = ${SCHEMA_VERSION};`);
   });

@@ -11,6 +11,8 @@ import { useSQLiteContext } from 'expo-sqlite';
 import { randomUUID } from 'expo-crypto';
 import type { Task } from '../../domain/tasks';
 import type { Goal } from '../../domain/goals';
+import type { WeeklyReview } from '../../domain/reviews';
+import { saveReview, type SaveReviewInput } from '../../data/reviews';
 import {
   applyGoalCommand,
   listGoals,
@@ -31,6 +33,7 @@ type Store = {
   refresh: () => Promise<void>;
   execute: (command: TaskCommand) => Promise<void>;
   executeGoal: (command: GoalCommand) => Promise<void>;
+  saveWeeklyReview: (input: SaveReviewInput) => Promise<WeeklyReview>;
 };
 const TaskContext = createContext<Store | null>(null);
 
@@ -71,7 +74,7 @@ export function TaskProvider({ children }: PropsWithChildren) {
     };
   }, [refresh]);
 
-  async function mutate(work: () => Promise<void>) {
+  async function mutate<T>(work: () => Promise<T>): Promise<T> {
     if (lock.current)
       throw new Error(
         'A change is still saving. Please try again in a moment.',
@@ -79,8 +82,9 @@ export function TaskProvider({ children }: PropsWithChildren) {
     lock.current = true;
     setBusy(true);
     try {
-      await work();
+      const result = await work();
       await refresh();
+      return result;
     } finally {
       lock.current = false;
       setBusy(false);
@@ -90,6 +94,8 @@ export function TaskProvider({ children }: PropsWithChildren) {
     mutate(() => applyTaskCommand(db, command, randomUUID));
   const executeGoal = (command: GoalCommand) =>
     mutate(() => applyGoalCommand(db, command, randomUUID));
+  const saveWeeklyReview = (input: SaveReviewInput) =>
+    mutate(() => saveReview(db, input, randomUUID));
   return (
     <TaskContext.Provider
       value={{
@@ -101,6 +107,7 @@ export function TaskProvider({ children }: PropsWithChildren) {
         refresh,
         execute,
         executeGoal,
+        saveWeeklyReview,
       }}
     >
       {children}

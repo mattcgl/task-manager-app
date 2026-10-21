@@ -2,7 +2,7 @@
 
 An iPhone-first personal planner built with Expo, React Native, TypeScript, and SQLite. The goal is to connect daily tasks to personal goals and thoughtful weekly reviews, with local storage and no required backend.
 
-**Status: tasks and goals preview.** The user verified the M1 intention save/reload flow on iPhone. M2 adds task management, native date pickers, and Today/Inbox/Completed/Archived views. M3 adds goals, linked tasks, progress, and goal filters. M2/M3 iPhone acceptance is pending. Weekly reviews remain planned. Android is not yet verified.
+**Status: tasks, goals, and weekly reviews preview.** The user verified intention persistence, goal creation, linked task completion, progress updates, and reload on iPhone. M4 adds weekly summaries, saved reflections, finalized history, and optional next-week planning; its iPhone acceptance is pending. Android is not yet verified.
 
 ## Run on your iPhone
 
@@ -34,6 +34,14 @@ Create a goal in **Goals**, optionally add a description and target date, and li
 
 Archiving a goal leaves its tasks and links intact. Restore it through **Goals → Archived**. New tasks cannot be assigned to archived goals, but existing links can be retained or removed. Use **Tasks → Filter by goal** to see its work.
 
+## Review your week
+
+Open **Review** and choose a Monday–Sunday week. Accomplishments include unplanned completed work; unfinished commitments come from tasks you planned for that week. Rescheduling does not erase the original commitment. Archived/withdrawn work is shown separately, and repeated completion toggles never count a task twice.
+
+Write reflections and next-week priorities, then **Save draft**. Draft summaries refresh when reopened or through **Refresh summary**, which preserves unsaved reflection text. **Finalize review** freezes the historical summary; you can still edit reflection text. Finalizing an ongoing week requires confirmation and labels the result as the week so far. Saved reviews retain their original time zone when traveling.
+
+Under **Choose what comes next**, explicitly choose unfinished tasks to plan for the following week. Moving an existing planned date requires confirmation. Nothing carries over automatically, and older reviews cannot plan tasks into an elapsed week. Save reflections before leaving the app; week navigation warns about unsaved edits.
+
 ## Development checks
 
 ```sh
@@ -57,7 +65,7 @@ npm run check
 - `src/domain/` contains validation, calendar-date arithmetic, and list-selection rules independent of screens or SQLite.
 - `tests/` checks real SQLite migrations and rollback, task history/commitments, calendar rules in America/Denver, and form interactions. Physical-device persistence is a separate acceptance check.
 
-Schema version 3 adds goals and optional task goal IDs after version 2 introduced tasks, task events, and weekly commitments. Existing records are preserved by migrations. A task mutation and its history are saved in one exclusive transaction: either all changes succeed or none are saved. Events have stable sequence numbers to order changes that happen in the same millisecond. Shared state refreshes tasks and goals together after changes, so progress stays consistent across tabs. Domain logic and persistence remain separate so a future backend does not require rewriting every screen.
+Schema version 4 adds weekly reviews and a database guard against rewriting finalized summaries. Earlier migrations introduced goals, tasks, task events, and weekly commitments. Existing records are preserved by migrations. A task mutation and its history are saved in one exclusive transaction: either all changes succeed or none are saved. Events have stable sequence numbers to order changes that happen in the same millisecond. Reviews reconstruct task state at the selected week's cutoff, with calendar boundaries that account for daylight saving. Shared state refreshes tasks and goals together after changes, so progress stays consistent across tabs. Domain logic and persistence remain separate so a future backend does not require rewriting every screen.
 
 ## Roadmap and working agreement
 
