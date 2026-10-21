@@ -8,6 +8,7 @@ import {
   migrateDatabase,
   SCHEMA_VERSION,
   INITIAL_SCHEMA,
+  TASK_SCHEMA,
   type MigrationDatabase,
 } from '../src/data/migrations';
 
@@ -82,6 +83,37 @@ test('a failed migration rolls back real schema changes', async () => {
         .get(),
     ).toBeUndefined();
     expect(db.prepare('PRAGMA user_version').get()?.user_version).toBe(0);
+  } finally {
+    db.close();
+  }
+});
+
+test('version 2 task records survive the goal migration with no initial goal', async () => {
+  const db = new DatabaseSync(':memory:');
+  try {
+    db.exec(INITIAL_SCHEMA);
+    db.exec(TASK_SCHEMA);
+    db.exec('PRAGMA user_version = 2');
+    db.prepare(
+      `INSERT INTO tasks (id, title, notes, priority, status, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+    ).run(
+      'existing',
+      'Keep this task',
+      '',
+      'normal',
+      'open',
+      '2026-10-20',
+      '2026-10-20',
+    );
+    await migrateDatabase(adapter(db));
+    const task = db
+      .prepare('SELECT * FROM tasks WHERE id = ?')
+      .get('existing')!;
+    expect(task.title).toBe('Keep this task');
+    expect(task.goalId).toBeNull();
+    expect(db.prepare('SELECT * FROM goals').all()).toHaveLength(0);
+    await migrateDatabase(adapter(db));
+    expect(db.prepare('SELECT * FROM tasks').all()).toHaveLength(1);
   } finally {
     db.close();
   }

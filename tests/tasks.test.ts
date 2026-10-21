@@ -8,6 +8,8 @@ import {
   type TaskDatabase,
 } from '../src/data/tasks';
 import type { Task, TaskInput } from '../src/domain/tasks';
+import { applyGoalCommand, listGoals } from '../src/data/goals';
+import { goalProgress, validateGoal } from '../src/domain/goals';
 
 let db: DatabaseSync;
 let connection: TaskDatabase;
@@ -205,4 +207,185 @@ test('invalid task and impossible dates make no writes', async () => {
   );
   expect(await listTasks(connection)).toHaveLength(0);
   expect(db.prepare('SELECT * FROM task_events').all()).toHaveLength(0);
+});
+
+async function createGoal(title = 'Learn databases') {
+  await applyGoalCommand(
+    connection,
+    {
+      kind: 'create',
+      input: {
+        title,
+        description: 'Practice each week',
+        targetDate: '2026-12-31',
+      },
+    },
+    id,
+    now(),
+  );
+  return (await listGoals(connection)).find((goal) => goal.title === title)!;
+}
+
+test('empty goals show no percentage and completion stays an explicit action', async () => {
+  const goal = await createGoal();
+  expect(goalProgress(goal.id, await listTasks(connection))).toEqual({
+    total: 0,
+    completed: 0,
+    percent: null,
+  });
+  const task = await create({ goalId: goal.id });
+  await applyTaskCommand(
+    connection,
+    { kind: 'complete', id: task.id },
+    id,
+    now(),
+  );
+  expect(goalProgress(goal.id, await listTasks(connection))).toEqual({
+    total: 1,
+    completed: 1,
+    percent: 100,
+  });
+  expect((await listGoals(connection))[0].status).toBe('active');
+  await applyGoalCommand(
+    connection,
+    { kind: 'complete', id: goal.id },
+    id,
+    now(),
+  );
+  expect((await listGoals(connection))[0].status).toBe('completed');
+  await applyTaskCommand(
+    connection,
+    { kind: 'reopen', id: task.id },
+    id,
+    now(),
+  );
+  expect(goalProgress(goal.id, await listTasks(connection)).percent).toBe(0);
+  expect((await listGoals(connection))[0].status).toBe('completed');
+});
+
+test('archiving goals preserves tasks and restoration preserves completion status', async () => {
+  const goal = await createGoal();
+  const task = await create({ goalId: goal.id });
+  await applyGoalCommand(
+    connection,
+    { kind: 'complete', id: goal.id },
+    id,
+    now(),
+  );
+  await applyGoalCommand(
+    connection,
+    { kind: 'archive', id: goal.id },
+    id,
+    now(),
+  );
+  expect((await listTasks(connection))[0]).toEqual(task);
+  await expect(create({ goalId: goal.id })).rejects.toThrow('available goal');
+  // Existing links to an archived goal remain usable.
+  await applyTaskCommand(
+    connection,
+    {
+      kind: 'edit',
+      id: task.id,
+      input: { ...input, title: 'Updated', goalId: goal.id },
+    },
+    id,
+    now(),
+  );
+  await applyGoalCommand(
+    connection,
+    { kind: 'restore', id: goal.id },
+    id,
+    now(),
+  );
+  expect((await listGoals(connection))[0].status).toBe('completed');
+  expect((await listGoals(connection))[0].archivedAt).toBeNull();
+  await applyGoalCommand(
+    connection,
+    { kind: 'reopen', id: goal.id },
+    id,
+    now(),
+  );
+  expect((await listGoals(connection))[0].status).toBe('active');
+});
+
+test('changing a task goal moves progress and archived tasks do not count', async () => {
+  const first = await createGoal('First');
+  const second = await createGoal('Second');
+  const task = await create({ goalId: first.id });
+  await applyTaskCommand(
+    connection,
+    { kind: 'edit', id: task.id, input: { ...input, goalId: second.id } },
+    id,
+    now(),
+  );
+  expect(goalProgress(first.id, await listTasks(connection)).total).toBe(0);
+  expect(goalProgress(second.id, await listTasks(connection)).total).toBe(1);
+  const events = db
+    .prepare(
+      'SELECT snapshot FROM task_events WHERE taskId = ? ORDER BY sequence',
+    )
+    .all(task.id);
+  expect(JSON.parse(events[0].snapshot as string).task.goalId).toBe(first.id);
+  await applyTaskCommand(
+    connection,
+    { kind: 'archive', id: task.id },
+    id,
+    now(),
+  );
+  expect(
+    goalProgress(second.id, await listTasks(connection)).percent,
+  ).toBeNull();
+  await applyTaskCommand(
+    connection,
+    { kind: 'restore', id: task.id },
+    id,
+    now(),
+  );
+  await applyTaskCommand(
+    connection,
+    { kind: 'edit', id: task.id, input: { ...input, goalId: null } },
+    id,
+    now(),
+  );
+  expect(goalProgress(second.id, await listTasks(connection)).total).toBe(0);
+});
+
+test('unknown goal assignment rejects the entire task write', async () => {
+  await expect(create({ goalId: 'missing' })).rejects.toThrow('available goal');
+  expect(await listTasks(connection)).toHaveLength(0);
+  expect(db.prepare('SELECT * FROM task_events').all()).toHaveLength(0);
+});
+
+test('goal edits validate titles and dates without losing saved values', async () => {
+  const goal = await createGoal();
+  await expect(
+    applyGoalCommand(
+      connection,
+      {
+        kind: 'edit',
+        id: goal.id,
+        input: { title: '  ', description: '', targetDate: null },
+      },
+      id,
+    ),
+  ).rejects.toThrow('title');
+  expect((await listGoals(connection))[0]).toEqual(goal);
+  expect(() =>
+    validateGoal({
+      title: 'Good title',
+      description: '',
+      targetDate: '2026-02-30',
+    }),
+  ).toThrow();
+  await applyGoalCommand(
+    connection,
+    {
+      kind: 'edit',
+      id: goal.id,
+      input: { title: 'Renamed', description: 'Updated', targetDate: null },
+    },
+    id,
+  );
+  expect((await listGoals(connection))[0].title).toBe('Renamed');
+  expect((await listGoals(connection))[0].targetDate).toBeNull();
 });

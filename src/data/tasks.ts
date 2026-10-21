@@ -1,6 +1,7 @@
 import type { Task, TaskInput } from '../domain/tasks';
 import { validateTask } from '../domain/tasks';
 import { localDate, weekStart } from '../domain/dates';
+import type { Goal } from '../domain/goals';
 
 type Value = string | number | null;
 export interface TaskQueries {
@@ -58,6 +59,15 @@ export async function applyTaskCommand(
           updatedAt: stamp,
         };
     if (command.kind === 'edit') Object.assign(task, input);
+    task.goalId = task.goalId ?? null;
+    if (task.goalId) {
+      const goal = await tx.getFirstAsync<Goal>(
+        'SELECT * FROM goals WHERE id = ?',
+        task.goalId,
+      );
+      if (!goal || (goal.archivedAt && task.goalId !== previous?.goalId))
+        throw new Error('Choose an available goal or select No goal.');
+    }
     if (command.kind === 'complete') {
       if (task.status === 'completed') return;
       task.status = 'completed';
@@ -79,11 +89,11 @@ export async function applyTaskCommand(
 
     await tx.runAsync(
       `INSERT INTO tasks
-      (id, title, notes, dueDate, plannedDate, priority, status, completedAt, archivedAt, createdAt, updatedAt)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      (id, title, notes, dueDate, plannedDate, priority, status, completedAt, archivedAt, createdAt, updatedAt, goalId)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       ON CONFLICT(id) DO UPDATE SET title=excluded.title, notes=excluded.notes,
       dueDate=excluded.dueDate, plannedDate=excluded.plannedDate, priority=excluded.priority,
-      status=excluded.status, completedAt=excluded.completedAt, archivedAt=excluded.archivedAt, updatedAt=excluded.updatedAt`,
+      status=excluded.status, completedAt=excluded.completedAt, archivedAt=excluded.archivedAt, updatedAt=excluded.updatedAt, goalId=excluded.goalId`,
       task.id,
       task.title,
       task.notes,
@@ -95,6 +105,7 @@ export async function applyTaskCommand(
       task.archivedAt,
       task.createdAt,
       task.updatedAt,
+      task.goalId,
     );
 
     if (

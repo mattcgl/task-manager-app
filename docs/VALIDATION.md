@@ -1,6 +1,6 @@
 # Project validation — 2026-10-20
 
-Current status: M1 accepted by the user on iPhone. M2 implementation verification and device checklist are recorded at the end. Earlier pending statements below are historical checkpoints.
+Current status: M1 accepted by the user on iPhone. M2 and M3 implementation checks pass; device checklists are recorded below. Earlier pending statements are historical checkpoints.
 
 ## Completed on Windows
 
@@ -68,3 +68,19 @@ The dependency installation reports 66 affected dependency entries (16 moderate,
 Device result: pending. No agent claim of iPhone or Android execution for M2.
 
 M2 desktop result: all 24 tests across five suites passed; typecheck, lint (no warnings), formatting, Expo compatibility, and iOS Hermes export passed. Native iPhone task flow still pending. Jest initially encountered sandbox cache-write restrictions; approved execution outside the sandbox succeeded.
+
+## M3 goals milestone
+
+TypeScript, lint, formatting, and all 32 tests pass. Coverage adds schema-2 migration preserving tasks with an initially null goal, empty-goal progress, explicit goal completion, task reopening, archived task exclusion, reassignment and history preservation, invalid goal rejection, goal archive/restore preserving tasks and prior completion status, task-link form interaction, and goal creation UI.
+
+Pending iPhone checks:
+
+1. Restart with `npm start -- --clear`, then confirm your existing intention/tasks remain.
+2. Create a goal with a title, description, and target date; edit it and verify the values remain after reload.
+3. Link a task via its Edit form. Complete/reopen the task and check the goal's counts update. Reassign it or select No goal and check progress changes accordingly.
+4. Mark the goal complete, reopen it, archive it, and restore it. Confirm its tasks remain available throughout.
+5. Try Tasks → Filter by goal. The existing M2 create/edit/complete/archive task checklist is still pending too.
+
+No physical-device verification is claimed for M2/M3. No new dependency or paid service was required by M3.
+
+M3 iOS Hermes bundle export also passed. Native-device acceptance remains pending.

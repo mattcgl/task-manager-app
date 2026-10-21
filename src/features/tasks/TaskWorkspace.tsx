@@ -30,15 +30,22 @@ const filters: { key: TaskFilter; title: string }[] = [
 ];
 
 export function TaskWorkspace({ mode }: { mode: 'today' | 'all' }) {
-  const { tasks, loading, busy, error, refresh, execute } = useTasks();
+  const { tasks, goals, loading, busy, error, refresh, execute } = useTasks();
+  const [goalFilter, setGoalFilter] = useState('all');
   const today = useToday();
   const [filter, setFilter] = useState<TaskFilter>('open');
   const [quickTitle, setQuickTitle] = useState('');
   const [actionError, setActionError] = useState('');
   const [message, setMessage] = useState('');
   const [editor, setEditor] = useState<Task | null | undefined>(undefined);
-  const visible =
+  const filtered =
     mode === 'today' ? todayTasks(tasks, today) : filterTasks(tasks, filter);
+  const visible = filtered.filter(
+    (task) =>
+      mode === 'today' ||
+      goalFilter === 'all' ||
+      (goalFilter === 'none' ? !task.goalId : task.goalId === goalFilter),
+  );
 
   async function run(command: TaskCommand, success: string) {
     setActionError('');
@@ -141,6 +148,31 @@ export function TaskWorkspace({ mode }: { mode: 'today' | 'all' }) {
           ))}
         </View>
       )}
+      {mode === 'all' && goals.length > 0 && (
+        <View style={formStyles.field}>
+          <Text style={styles.heading}>Filter by goal</Text>
+          <View style={formStyles.row}>
+            <SmallButton
+              label="All goals"
+              selected={goalFilter === 'all'}
+              onPress={() => setGoalFilter('all')}
+            />
+            <SmallButton
+              label="No goal"
+              selected={goalFilter === 'none'}
+              onPress={() => setGoalFilter('none')}
+            />
+            {goals.map((goal) => (
+              <SmallButton
+                key={goal.id}
+                label={`${goal.title}${goal.archivedAt ? ' (archived)' : ''}`}
+                selected={goalFilter === goal.id}
+                onPress={() => setGoalFilter(goal.id)}
+              />
+            ))}
+          </View>
+        </View>
+      )}
       <Text accessibilityRole="header" style={styles.heading}>
         {mode === 'today'
           ? `Today & overdue · ${visible.length}`
@@ -217,6 +249,13 @@ export function TaskWorkspace({ mode }: { mode: 'today' | 'all' }) {
               {task.priority.toUpperCase()} PRIORITY
               {isOverdue(task, today) ? ' · OVERDUE' : ''}
             </Text>
+            {!!task.goalId && (
+              <Text style={styles.body}>
+                Goal:{' '}
+                {goals.find((goal) => goal.id === task.goalId)?.title ??
+                  'Unavailable goal'}
+              </Text>
+            )}
             {!!task.notes && <Text style={styles.body}>{task.notes}</Text>}
             {!!task.plannedDate && (
               <Text style={styles.body}>

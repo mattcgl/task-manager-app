@@ -45,7 +45,7 @@ export function SmallButton({
   );
 }
 
-function DateField({
+export function DateField({
   label,
   help,
   value,
@@ -130,11 +130,12 @@ export function TaskEditor({
   plannedDate: string | null;
   onClose: () => void;
 }) {
-  const { execute, busy } = useTasks();
+  const { execute, busy, goals } = useTasks();
   const [input, setInput] = useState<TaskInput>(
     task
       ? {
           title: task.title,
+          goalId: task.goalId ?? null,
           notes: task.notes,
           priority: task.priority,
           plannedDate: task.plannedDate,
@@ -142,6 +143,7 @@ export function TaskEditor({
         }
       : {
           title: '',
+          goalId: null,
           notes: '',
           priority: 'normal',
           plannedDate,
@@ -220,6 +222,31 @@ export function TaskEditor({
               />
             ))}
           </View>
+          <Text style={styles.heading}>Goal</Text>
+          <View style={formStyles.row}>
+            <SmallButton
+              label="No goal"
+              selected={!input.goalId}
+              disabled={busy}
+              onPress={() => update('goalId', null)}
+            />
+            {goals
+              .filter((goal) => !goal.archivedAt || goal.id === input.goalId)
+              .map((goal) => (
+                <SmallButton
+                  key={goal.id}
+                  label={`${goal.title}${goal.archivedAt ? ' (archived)' : goal.status === 'completed' ? ' (completed)' : ''}`}
+                  selected={input.goalId === goal.id}
+                  disabled={busy}
+                  onPress={() => update('goalId', goal.id)}
+                />
+              ))}
+          </View>
+          {goals.length === 0 && (
+            <Text style={styles.body}>
+              Create a goal in the Goals tab to link it here.
+            </Text>
+          )}
           <DateField
             label="Planned date"
             help="When you intend to work on this task."

@@ -2,6 +2,7 @@ import { parseDate } from './dates';
 
 export type Priority = 'low' | 'normal' | 'high';
 export type TaskInput = {
+  goalId?: string | null;
   title: string;
   notes: string;
   dueDate: string | null;

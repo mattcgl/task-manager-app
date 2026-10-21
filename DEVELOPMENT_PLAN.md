@@ -1,8 +1,8 @@
 # Personal Goals and Tasks — Development Plan
 
 Last updated: 2026-10-20
-Status: M1 accepted on iPhone; M2 implementation verified, device acceptance pending.
-Current milestone: M2 — Tasks and Today.
+Status: M1 accepted; M2/M3 implementation verified, physical-device acceptance pending.
+Current milestone: M3 — Goals (M2 device acceptance still pending).
 
 ## 1. Purpose and working agreement
 
@@ -257,3 +257,16 @@ M2 implementation checkpoint:
 - Next action: finish checks, commit/push M2 implementation, and ask the user to verify the task flow and original intention on iPhone before M3.
 
 M2 verification passed: TypeScript, ESLint, Prettier, 24 tests across five suites, Expo SDK compatibility, and iOS Hermes export. M2 user device checklist remains pending; next milestone is M3 after that check.
+
+User requested continued development after credits resumed. Proceed with M3 while retaining pending M2 physical-device checks; do not mark them passed. M3 adds goals and optional task goal association via additive schema version 3. Goals preserve active/completed status separately from an archive timestamp so restoring a goal preserves its status. Archiving never deletes or archives linked tasks. Progress counts only nonarchived linked tasks; completing a goal is explicit and independent of task count. Existing archived goal links can be retained or removed, but new assignments to archived goals are rejected.
+
+M3 implementation checkpoint:
+
+- Added goal creation/editing, target dates, explicit completion/reopening, and archive/restore with status preservation.
+- Tasks can be assigned/reassigned/unlinked in the editor and filtered by goal, including preserved archived-goal links.
+- Progress counts nonarchived linked tasks and shows no percentage for an empty goal. Shared state refreshes tasks and goals together.
+- Schema version 3 preserves existing intention, tasks, and history while adding goals and nullable task goal IDs.
+- TypeScript, lint, formatting, and 32 tests passed. Tests cover migration from M2, goal validation, goal archive preservation, task reassignment, empty/archived progress, explicit completion, and goal form/task-link interactions.
+- M2 and M3 iPhone checks remain pending. Next milestone is M4 weekly reviews; record device feedback before relying on these features for personal data.
+
+M3 iOS Hermes export passed. Commit the tested implementation checkpoint; collect M2/M3 device feedback before marking either accepted.

@@ -2,7 +2,7 @@
 
 An iPhone-first personal planner built with Expo, React Native, TypeScript, and SQLite. The goal is to connect daily tasks to personal goals and thoughtful weekly reviews, with local storage and no required backend.
 
-**Status: task milestone preview.** The user verified the M1 intention save/reload flow on iPhone. M2 adds task creation/editing, completion/reopening, archive/restore, priorities, native date pickers, and Today/Inbox/Completed/Archived views. M2 iPhone acceptance is pending. Goals and reviews remain planned screens. Android is not yet verified.
+**Status: tasks and goals preview.** The user verified the M1 intention save/reload flow on iPhone. M2 adds task management, native date pickers, and Today/Inbox/Completed/Archived views. M3 adds goals, linked tasks, progress, and goal filters. M2/M3 iPhone acceptance is pending. Weekly reviews remain planned. Android is not yet verified.
 
 ## Run on your iPhone
 
@@ -28,6 +28,12 @@ If connection fails, check the same-network requirement, Windows firewall permis
 
 Expo Go is a development environment; it may need the running development server. A standalone offline iPhone build is a later milestone with Apple signing requirements. No paid service is configured here. Local records are not cloud-backed; avoid important personal data until backup/restore is implemented.
 
+## Work toward a goal
+
+Create a goal in **Goals**, optionally add a description and target date, and link tasks using their **Edit** form. The Goals tab shows completed versus total nonarchived linked tasks. An empty goal has no percentage yet; task completion never automatically completes the goal. Use **Complete goal** when you decide it is achieved, or **Reopen goal** later.
+
+Archiving a goal leaves its tasks and links intact. Restore it through **Goals → Archived**. New tasks cannot be assigned to archived goals, but existing links can be retained or removed. Use **Tasks → Filter by goal** to see its work.
+
 ## Development checks
 
 ```sh
@@ -51,7 +57,7 @@ npm run check
 - `src/domain/` contains validation, calendar-date arithmetic, and list-selection rules independent of screens or SQLite.
 - `tests/` checks real SQLite migrations and rollback, task history/commitments, calendar rules in America/Denver, and form interactions. Physical-device persistence is a separate acceptance check.
 
-Schema version 2 adds tasks, task events, and weekly commitments to the original settings table. A task mutation and its history are saved in one exclusive transaction: either all changes succeed or none are saved. Events have stable sequence numbers to order changes that happen in the same millisecond. Goal schemas will follow in M3. Domain logic and persistence remain separate so a future backend does not require rewriting every screen.
+Schema version 3 adds goals and optional task goal IDs after version 2 introduced tasks, task events, and weekly commitments. Existing records are preserved by migrations. A task mutation and its history are saved in one exclusive transaction: either all changes succeed or none are saved. Events have stable sequence numbers to order changes that happen in the same millisecond. Shared state refreshes tasks and goals together after changes, so progress stays consistent across tabs. Domain logic and persistence remain separate so a future backend does not require rewriting every screen.
 
 ## Roadmap and working agreement
 

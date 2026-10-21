@@ -5,7 +5,7 @@ export interface MigrationDatabase {
   withTransactionAsync(work: () => Promise<void>): Promise<void>;
 }
 
-export const SCHEMA_VERSION = 2;
+export const SCHEMA_VERSION = 3;
 
 export const INITIAL_SCHEMA = `
 CREATE TABLE IF NOT EXISTS settings (
@@ -67,6 +67,21 @@ export async function migrateDatabase(db: MigrationDatabase): Promise<void> {
   await db.withTransactionAsync(async () => {
     if (version < 1) await db.execAsync(INITIAL_SCHEMA);
     if (version < 2) await db.execAsync(TASK_SCHEMA);
+    if (version < 3)
+      await db.execAsync(`
+      CREATE TABLE goals (
+        id TEXT PRIMARY KEY NOT NULL,
+        title TEXT NOT NULL CHECK(length(trim(title)) BETWEEN 1 AND 200),
+        description TEXT NOT NULL,
+        targetDate TEXT,
+        status TEXT NOT NULL CHECK(status IN ('active', 'completed')),
+        archivedAt TEXT,
+        createdAt TEXT NOT NULL,
+        updatedAt TEXT NOT NULL
+      );
+      ALTER TABLE tasks ADD COLUMN goalId TEXT REFERENCES goals(id);
+      CREATE INDEX tasks_goal ON tasks(goalId);
+    `);
     await db.execAsync(`PRAGMA user_version = ${SCHEMA_VERSION};`);
   });
 }

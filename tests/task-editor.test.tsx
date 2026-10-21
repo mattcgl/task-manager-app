@@ -9,6 +9,9 @@ import { TaskEditor } from '../src/features/tasks/TaskEditor';
 import { useTasks } from '../src/features/tasks/TaskProvider';
 import type { TaskCommand } from '../src/data/tasks';
 import type { Task } from '../src/domain/tasks';
+import { GoalsScreen } from '../src/features/goals/GoalsScreen';
+import type { Goal } from '../src/domain/goals';
+import type { GoalCommand } from '../src/data/goals';
 
 jest.mock('../src/features/tasks/TaskProvider', () => ({
   useTasks: jest.fn(),
@@ -31,6 +34,8 @@ beforeEach(() => {
   execute.mockResolvedValue(undefined);
   jest.mocked(useTasks).mockReturnValue({
     tasks: [],
+    goals: [],
+    executeGoal: async () => {},
     loading: false,
     busy: false,
     error: '',
@@ -54,6 +59,7 @@ test('new task form sends title, notes, priority, and the chosen planned date', 
     kind: 'create',
     input: {
       title: 'Read chapter 3',
+      goalId: null,
       notes: 'Focus on examples',
       priority: 'high',
       dueDate: null,
@@ -99,11 +105,63 @@ test('editing preserves identity and can clear a planned date without clearing t
       id: 'existing',
       input: {
         title: 'Updated',
+        goalId: null,
         notes: '',
         priority: 'low',
         plannedDate: null,
         dueDate: '2026-10-25',
       },
+    }),
+  );
+});
+
+const goal: Goal = {
+  id: 'goal-1',
+  title: 'Learn SQL',
+  description: '',
+  targetDate: null,
+  status: 'active',
+  archivedAt: null,
+  createdAt: '',
+  updatedAt: '',
+};
+
+test('task editor links a selected goal', async () => {
+  jest.mocked(useTasks).mockReturnValue({ ...useTasks(), goals: [goal] });
+  render(<TaskEditor task={null} plannedDate={null} onClose={() => {}} />);
+  fireEvent.changeText(screen.getByLabelText('Task title'), 'Practice joins');
+  fireEvent.press(screen.getByRole('button', { name: 'Learn SQL' }));
+  fireEvent.press(screen.getByRole('button', { name: 'Save task' }));
+  await waitFor(() =>
+    expect(execute).toHaveBeenCalledWith(
+      expect.objectContaining({
+        input: expect.objectContaining({ goalId: goal.id }),
+      }),
+    ),
+  );
+});
+
+test('goal screen shows empty progress and permits creating a goal', async () => {
+  const executeGoal = jest
+    .fn<(command: GoalCommand) => Promise<void>>()
+    .mockResolvedValue(undefined);
+  jest
+    .mocked(useTasks)
+    .mockReturnValue({ ...useTasks(), goals: [goal], executeGoal });
+  render(<GoalsScreen />);
+  expect(
+    screen.getByText(
+      'No task progress yet. Link a task to start measuring your steps.',
+    ),
+  ).toBeTruthy();
+  expect(screen.queryByRole('progressbar')).toBeNull();
+  fireEvent.press(screen.getByRole('button', { name: 'Create a goal' }));
+  fireEvent.changeText(screen.getByLabelText('Goal title'), 'Read more books');
+  fireEvent.press(screen.getByRole('button', { name: 'Save goal' }));
+  await waitFor(() =>
+    expect(executeGoal).toHaveBeenCalledWith({
+      kind: 'create',
+      input: { title: 'Read more books', description: '', targetDate: null },
     }),
   );
 });
